@@ -1,0 +1,51 @@
+server {
+    listen       80;
+    server_name  localhost;
+
+    location /index.html {
+        add_header Cache-Control "no-cache, no-store";
+
+        if ( $http_user_agent ~* 'micromessenger' ){
+            root   /app/app/wx/;
+            break;
+        }
+
+        if ( $http_user_agent ~* ' QQ/' ){
+            root   /app/app/qq/;
+            break;
+        }
+
+        root   /app/;
+    }
+
+    location / {
+        if ( $http_user_agent ~* 'micromessenger' ){
+            root   /app/app/wx/;
+            break;
+        }
+
+        if ( $http_user_agent ~* ' QQ/' ){
+            root   /app/app/qq/;
+            break;
+        }
+
+        root   /app/;
+    }
+
+    location /hello {
+        default_type 'text/html';
+        content_by_lua_block {
+            ngx.say("Hello World")
+        }
+    }
+
+    gzip on;
+    gzip_min_length   1k;
+    gzip_buffers      4  8k;
+    gzip_http_version 1.1;
+    gzip_types        application/javascript application/x-javascript text/javascript text/css;
+
+    charset utf-8;
+    access_log  /dev/stdout;
+    error_log  /dev/stdout;
+}
