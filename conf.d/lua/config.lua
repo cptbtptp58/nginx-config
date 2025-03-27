@@ -20,4 +20,4 @@ cc_redirect_period_minute = "0-60"
 --redirect country code
 cc_redirect_countries_allowed = "CN"
 --redirect provinces code
-cc_redirect_provinces_forbidden = "SC"
+cc_redirect_provinces_allowed = "SC"

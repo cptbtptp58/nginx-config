@@ -36,9 +36,9 @@ function check_ip_service_area(ip)
     end
     
     -- verify the province
-    local provinces_forbidden = split(cc_redirect_provinces_forbidden, "-")
+    local provinces_allowed = split(cc_redirect_provinces_allowed, "-")
     local province_code = subdivisions[1]["iso_code"]
-    if is_in_list(province_code, provinces_forbidden) then
+    if not is_in_list(province_code, provinces_allowed) then
         return 103
     end
 
@@ -75,25 +75,32 @@ function get_client_ip()
     return CLIENT_IP
 end
 
+function get_client_domain()
+    local headers = ngx.req.get_headers()
+    local CLIENT_DOMAIN = headers["Host"]
+    return CLIENT_DOMAIN
+end
+
 --log record for json,(use logstash codec => json)
 function log_record(method, data)
     local cjson = require("cjson")
     local io = require 'io'
     local LOG_PATH = cc_redirect_log_dir
-    local CLIENT_IP = get_client_ip()
-    -- local USER_AGENT = get_user_agent()
-    local SERVER_NAME = ngx.var.server_name
-    local URL = ngx.var.uri
     local LOCAL_TIME = ngx.localtime()
+    local CLIENT_IP = get_client_ip()
+    local SERVER_NAME = ngx.var.server_name
+    local USER_AGENT = get_user_agent()
+    local URL = ngx.var.uri
+    local USER_AGENT = get_user_agent()
     local log_json_obj = {
-                 client_ip = CLIENT_IP,
-                 local_time = LOCAL_TIME,
-                 server_name = SERVER_NAME,
-                --  user_agent = USER_AGENT,
-                 method = method,
-                 url = URL,
-                 data = data,
-              }
+        local_time = LOCAL_TIME,
+        client_ip = CLIENT_IP,
+        server_name = SERVER_NAME,
+        user_agent = USER_AGENT,
+        method = method,
+        url = URL,
+        data = data,
+    }
     local LOG_LINE = cjson.encode(log_json_obj)
     local LOG_NAME = LOG_PATH..'/'..ngx.today().."_waf.log"
     local file = io.open(LOG_NAME,"a")
