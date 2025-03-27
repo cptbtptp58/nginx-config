@@ -1,6 +1,6 @@
 cc_env_name = "bjl"
 --redirect status
-cc_redirect_enable = "on"
+cc_redirect_enable = "off"
 --redirect url
 cc_redirect_url = "https://m.xpj8120.vip/"
 --redirct status code
@@ -12,9 +12,9 @@ cc_redirect_limit = 100
 --after serveral seconds, this ip can redirect again
 cc_redirect_expire_time_one_ip = 86400
 --after serval seconds, another ip can redirect
-cc_redirect_expire_time_another_ip = 10
+cc_redirect_expire_time_another_ip = 60
 --redirect period from .. to .. (hour)
-cc_redirect_period_hour = "22-24"
+cc_redirect_period_hour = "0-24"
 --redirect period from .. to .. (minute)
 cc_redirect_period_minute = "0-60"
 --redirect country code

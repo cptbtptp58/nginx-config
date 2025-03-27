@@ -1,7 +1,8 @@
 require 'config'
 require 'lib'
 
-function rewrite_check(access_ip)
+function rewrite_check(access_ip, remain_key)
+    -- 返回非 0 时，不跳转；返回 0 时，跳转
     local limit = ngx.shared.limit
 
     -- 开关未开, 不跳转
@@ -24,17 +25,21 @@ and now_minute >= redirect_begin_minute and now_minute <= redirect_end_minute)
     if not is_in_period then
         return 20
     end
-
-    local now_date_value = limit:get(now_date) or 0
-    -- 超过了当天最大跳转次数, 不跳转
-    if now_date_value > cc_redirect_limit then
+    
+    local is_access_ip = limit:get(access_ip)
+    local is_access_domain = limit:get(remain_key)
+    if is_access_ip then
+        if is_access_domain then
+            return 0  -- IP在限制时间内，且是同一个域名，允许跳转
+        end
+        return 40    -- IP在限制时间内，但是其他域名，不跳转
+    end    
+    
+    -- 使用UV计数检查是否超过当天最大跳转次数
+    local uv_key = now_date .. "_uv"
+    local now_uv_value = limit:get(uv_key) or 0
+    if now_uv_value > cc_redirect_limit then
         return 30
-    end
-
-    -- 当前ip访问过的话，且没有超期的情况下，不跳转
-    local one_ip_go = limit:get(access_ip)
-    if one_ip_go then
-        return 40
     end
 
     -- 上个ip跳转后一定时间段内，不跳转
@@ -50,5 +55,4 @@ and now_minute >= redirect_begin_minute and now_minute <= redirect_end_minute)
     end
 
     return 0
-
 end
